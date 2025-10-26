@@ -13,7 +13,8 @@
       "Bash(cat:*)",
       "Bash(ANTHROPIC_API_KEY=\"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\" )",
       "Bash(OMI_API_KEY=\"omi_dev_c40202a1c776472f33ce542439434d2d\":*)",
-      "Bash(BRIGHT_DATA_API_KEY=\"3663d5c3a05e6bb677cde97116c04e5d54578cd52131a8cdecc305e800b19051\" )"
+      "Bash(BRIGHT_DATA_API_KEY=\"3663d5c3a05e6bb677cde97116c04e5d54578cd52131a8cdecc305e800b19051\" )",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
