@@ -61,8 +61,8 @@ modal setup
 2. Click "Secrets" → "Create Secret"
 3. Name: `foodvoice-secrets`
 4. Add keys:
-   - `ANTHROPIC_API_KEY` = `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`
-   - `OMI_API_KEY` = `omi_dev_c40202a1c776472f33ce542439434d2d`
+   - `ANTHROPIC_API_KEY` = `your-anthropic-api-key`
+   - `OMI_API_KEY` = `your-omi-api-key`
    - `REDIS_URL` = `redis://localhost:6379` (optional)
    - `MULTION_API_KEY` = (leave blank for MVP)
 
