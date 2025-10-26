@@ -1,0 +1,23 @@
+# Core Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# AI
+anthropic==0.18.1
+
+# Storage
+redis==5.0.1
+
+# HTTP Client
+httpx==0.26.0
+
+# Automation (optional for MVP)
+multion==1.1.0
+
+# Deployment
+modal==0.63.0
+
+# Development
+python-dotenv==1.0.0

@@ -1,0 +1,54 @@
+🎉 YOUR FOODVOICE APP IS DEPLOYED!
+
+Webhook URL for Omi App:
+https://alexwang409--foodvoice-omi-fastapi-app.modal.run/webhook/transcript
+
+Memory Webhook URL (optional):
+https://alexwang409--foodvoice-omi-fastapi-app.modal.run/webhook/memory
+
+Health Check:
+https://alexwang409--foodvoice-omi-fastapi-app.modal.run/health
+
+Dashboard:
+https://modal.com/apps/alexwang409/main/deployed/foodvoice-omi
+
+---
+
+HOW TO REGISTER IN OMI APP:
+
+1. Open Omi app on your phone
+2. Go to "App Store" tab
+3. Tap "Submit App" or "+"
+4. Fill in:
+
+   App Capabilities:
+   ✓ External Integration
+
+   Trigger Event:
+   ✓ Audio Bytes (for real-time transcription)
+
+   Webhook URL:
+   https://alexwang409--foodvoice-omi-fastapi-app.modal.run/webhook/transcript
+
+   (Optional) Memory Webhook:
+   https://alexwang409--foodvoice-omi-fastapi-app.modal.run/webhook/memory
+
+5. Submit!
+
+---
+
+TEST YOUR APP:
+
+Say to your Omi device:
+"Order a pepperoni pizza from Domino's"
+
+Or:
+"Order a burger from Five Guys"
+
+Or:
+"Order my usual"
+
+---
+
+VIEW LOGS:
+modal logs foodvoice-omi
