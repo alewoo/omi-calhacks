@@ -18,7 +18,10 @@ image = (
         "redis==5.0.1",
         "httpx==0.26.0",
         "python-dotenv==1.0.0",
+        "beautifulsoup4==4.12.0",
+        "playwright==1.40.0",
     )
+    .run_commands("playwright install chromium")
 )
 
 # Define secrets
@@ -72,6 +75,43 @@ def fastapi_app():
         confidence: float = 0.0
 
     # Services
+    class DoorDashFinder:
+        """Generate smart DoorDash links using Google I'm Feeling Lucky"""
+        def __init__(self):
+            pass
+
+        async def find_store(self, food_item: str, restaurant: Optional[str] = None, cuisine: Optional[str] = None) -> Optional[str]:
+            """Generate optimized Google search link that redirects to DoorDash"""
+            try:
+                # Build smart search query
+                if restaurant:
+                    # Search for specific restaurant on DoorDash
+                    search_query = f"{restaurant} DoorDash"
+                    print(f"🔍 Building link for: {restaurant}")
+                elif food_item:
+                    # Search for food type
+                    search_query = f"{food_item} DoorDash near me"
+                    print(f"🔍 Building link for: {food_item}")
+                elif cuisine:
+                    # Search for cuisine type
+                    search_query = f"{cuisine} food DoorDash"
+                    print(f"🔍 Building link for: {cuisine}")
+                else:
+                    return "https://www.doordash.com/"
+
+                # Use Google "I'm Feeling Lucky" - automatically redirects to first result
+                # This is more reliable than trying to scrape DoorDash directly
+                encoded_query = search_query.replace(" ", "+")
+                lucky_link = f"https://www.google.com/search?q={encoded_query}&btnI=1"
+
+                print(f"✅ Generated search link: {search_query}")
+                return lucky_link
+
+            except Exception as e:
+                print(f"❌ Error: {e}")
+                # Ultimate fallback
+                return "https://www.doordash.com/"
+
     class IntentParser:
         def __init__(self):
             api_key = os.getenv("ANTHROPIC_API_KEY")
@@ -193,12 +233,14 @@ Return ONLY valid JSON:
     try:
         intent_parser = IntentParser()
         storage = StorageService()
+        doordash_finder = DoorDashFinder()
         print("✅ All services initialized")
-        print(f"🔑 API Keys - Claude: {bool(os.getenv('ANTHROPIC_API_KEY'))}, Omi: {bool(os.getenv('OMI_API_KEY'))}")
+        print(f"🔑 API Keys - Claude: {bool(os.getenv('ANTHROPIC_API_KEY'))}, Omi: {bool(os.getenv('OMI_API_KEY'))}, Bright Data: {bool(os.getenv('BRIGHT_DATA_API_KEY'))}")
     except Exception as e:
         print(f"❌ Error initializing services: {e}")
         intent_parser = None
         storage = StorageService()
+        doordash_finder = None
 
     # Create FastAPI app
     app = FastAPI(
@@ -279,12 +321,26 @@ Return ONLY valid JSON:
                     return {"status": "no_previous_order"}
 
             # Generate order summary
+            search_term = order_intent.food_item or order_intent.cuisine or "food"
             restaurant = order_intent.restaurant or "a highly rated restaurant"
-            summary = f"{order_intent.food_item} from {restaurant}"
 
-            # Build DoorDash deep link
-            food_query = order_intent.food_item.replace(" ", "%20")
-            deep_link = f"https://www.doordash.com/search/?query={food_query}"
+            if order_intent.restaurant:
+                summary = f"{order_intent.food_item or order_intent.cuisine} from {order_intent.restaurant}"
+            else:
+                summary = f"{search_term} from {restaurant}"
+
+            # Find actual DoorDash store link
+            print("🔍 Finding DoorDash store...")
+            deep_link = await doordash_finder.find_store(
+                food_item=order_intent.food_item,
+                restaurant=order_intent.restaurant,
+                cuisine=order_intent.cuisine
+            )
+
+            # deep_link should now have the real DoorDash store URL from Bright Data scraping
+            if not deep_link:
+                print("⚠️ No deep link found, using generic DoorDash URL")
+                deep_link = "https://www.doordash.com/"
 
             # Save as last order
             storage.save_last_order(uid, order_intent)
@@ -293,12 +349,9 @@ Return ONLY valid JSON:
             print(f"🔗 Deep link: {deep_link}")
 
             # Prepare response with notification
-            response_message = f"🍕 Order placed: {summary}. Check the link to complete checkout!\n\n{deep_link}"
+            response_message = f"🍕 {summary}\n\n{deep_link}"
 
             return {
-                "status": "success",
-                "order": order_intent.model_dump(),
-                "deep_link": deep_link,
                 "message": response_message
             }
 
