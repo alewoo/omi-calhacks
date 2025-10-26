@@ -59,7 +59,8 @@ def fastapi_app():
         segments: List[TranscriptSegment]
 
         def get_user_text(self) -> str:
-            return " ".join([s.text for s in self.segments if s.is_user])
+            # Get ALL text, not just is_user=True (Omi sometimes marks everything as is_user=False)
+            return " ".join([s.text for s in self.segments])
 
     class OrderIntent(BaseModel):
         food_item: str
@@ -236,11 +237,21 @@ Return ONLY valid JSON:
     @app.post("/webhook/transcript")
     async def handle_realtime_transcript(webhook: RealtimeWebhook):
         try:
+            # Debug: print raw webhook data
+            print(f"🔍 Raw webhook received - session: {webhook.session_id}, segments: {len(webhook.segments)}")
+
+            # Print each segment's details
+            for i, seg in enumerate(webhook.segments):
+                print(f"  Segment {i}: text='{seg.text}', is_user={seg.is_user}, speaker={seg.speaker}")
+
             user_text = webhook.get_user_text()
+            print(f"📝 Extracted text: '{user_text}' (length: {len(user_text)})")
+
             if not user_text:
+                print("⚠️ Empty transcript, skipping")
                 return {"status": "no_speech"}
 
-            print(f"📝 Transcript: {user_text}")
+            print(f"📝 Processing: {user_text}")
 
             # Check if intent parser is available
             if intent_parser is None:
